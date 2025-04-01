@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruzamentos Genéticos - Jogo Educativo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: #2e7d32;
+        }
+        
+        .instructions {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .mendel-laws {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .parent-area, .offspring-area {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .plant-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .plant {
+            width: 100px;
+            height: 140px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        .plant:hover {
+            transform: scale(1.05);
+        }
+        
+        .plant.selected {
+            outline: 3px solid gold;
+            border-radius: 5px;
+        }
+        
+        .pot {
+            width: 60px;
+            height: 40px;
+            background-color: #8d6e63;
+            border-radius: 0 0 30px 30px;
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+        }
+        
+        .stem {
+            width: 6px;
+            height: 60px;
+            background-color: #388e3c;
+            position: absolute;
+            bottom: 40px;
+            left: 47px;
+        }
+        
+        .flower {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 90px;
+            left: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .genotype {
+            position: absolute;
+            bottom: -25px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1b5e20;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            text-align: center;
+            margin: 15px 0;
+            font-style: italic;
+            min-height: 20px;
+            color: #555;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        
+        .divider {
+            border-top: 1px dashed #aaa;
+            margin: 20px 0;
+        }
+        
+        .help-box {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .help-box h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        
+        .discovered {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .gene-badge {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        /* Estilo para o modal de congratulação */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            animation: modalAppear 0.5s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal h3 {
+            color: #2e7d32;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        
+        .modal button {
+            margin-top: 10px;
+            padding: 10px 25px;
+        }
+        
+        /* Estilo para o botão de créditos */
+        .credits-button {
+            background-color: #4e342e;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Estilos para a página de créditos */
+        .credits-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .credits-box {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+        
+        .credits-title {
+            color: #2e7d32;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .credits-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        
+        .credits-phrase {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px;
+            padding: 10px;
+            background-color: #c8e6c9;
+            border-radius: 8px;
+        }
+        
+        .credits-team {
+            margin-top: 30px;
+        }
+        
+        .back-button {
+            background-color: #4e342e;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .credits-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="game-container">
+        <h1>Cruzamentos Genéticos</h1>
+        
+        <!-- Nova seção: Leis de Mendel -->
+        <div class="mendel-laws">
+            <h2>Leis de Mendel - Breve Explicação</h2>
+            <p><strong>Primeira Lei (Lei da Segregação):</strong> Os genes se segregam durante a formação dos gametas. Cada gameta recebe apenas um alelo de cada par.</p>
+            <p><strong>Segunda Lei (Lei da Segregação Independente):</strong> Diferentes pares de genes são transmitidos de forma independente uns dos outros durante a formação dos gametas.</p>
+            <p><strong>Terceira Lei (Lei da Dominância):</strong> Quando dois alelos diferentes estão presentes, o caráter dominante se manifesta, enquanto o recessivo fica oculto.</p>
+            <p>Neste jogo, você vai observar essas leis em ação ao cruzar plantas com diferentes características!</p>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>Como jogar:</strong> Selecione duas plantas para cruzar e observe os resultados genéticos!</p>
+            <p>Existem dois pares de genes: cor (R/r) e forma (B/b)</p>
+            <ul>
+                <li><strong>R</strong> (vermelho) é dominante sobre <strong>r</strong> (branco)</li>
+                <li><strong>B</strong> (redondo) é dominante sobre <strong>b</strong> (oval)</li>
+            </ul>
+        </div>
+        
+        <div class="game-area">
+            <div class="parent-area">
+                <h2>Plantas Disponíveis</h2>
+                <div class="plant-container" id="parent-container">
+                    <!-- Plantas serão geradas via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="offspring-area">
+                <h2>Descendentes</h2>
+                <div class="plant-container" id="offspring-container">
+                    <!-- Plantas descendentes serão geradas via JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="message" id="message">Selecione duas plantas para cruzar</div>
+        
+        <div class="controls">
+            <button id="cross-button" disabled>Cruzar Plantas</button>
+            <button id="add-offspring" disabled>Adicionar à Coleção</button>
+            <button id="reset-button">Reiniciar</button>
+        </div>
+        
+        <div class="score" id="score">Pontuação: 0</div>
+        
+        <div class="divider"></div>
+        
+        <div class="help-box">
+            <h3>Genótipos Descobertos</h3>
+            <div class="discovered" id="discovered-list">
+                <!-- Genótipos descobertos serão listados aqui -->
+            </div>
+        </div>
+        
+        <button class="credits-button" id="show-credits-button">Créditos</button>
+    </div>
+    
+    <!-- Página de Créditos -->
+    <div class="container credits-container" id="credits-container">
+        <h1>Créditos</h1>
+        
+        <div class="credits-box">
+            <div class="credits-title">Equipe de Desenvolvimento</div>
+            
+            <div class="credits-content">
+                <div class="credits-phrase">EU I US KARA</div>
+                <div class="credits-phrase">
+                    PROGRAMADOR: GUSTAVO HENRIQUE<br>
+                    DESIGN: GERSON TORRES, KALYL, MURILO, FRANCISCO GABRIEL<br>
+                    ROTERISTAS: SERGIO MURILO, KEVIN, LUIS FABIANO E JOÃO MARCELO
+                </div>
+            </div>
+        </div>
+        
+        <button class="back-button" id="back-button">Voltar ao Menu</button>
+    </div>
+    
+    <!-- Modal de congratulação -->
+    <div class="modal" id="congratsModal">
+        <div class="modal-content">
+            <h3>PARABÉNS!</h3>
+            <p>VOCÊ É UM BELO CRUZADOR (LÁ ELE KKKK)</p>
+            <button id="closeModal">Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        // Estado do jogo
+        const gameState = {
+            parents: [],
+            offspring: [],
+            selectedPlants: [],
+            tempOffspring: null,
+            score: 0,
+            discoveredGenotypes: new Set(),
+            congratsShown: false  // Novo estado para rastrear se a mensagem já foi mostrada
+        };
+        
+        // Elementos DOM
+        const parentContainer = document.getElementById('parent-container');
+        const offspringContainer = document.getElementById('offspring-container');
+        const crossButton = document.getElementById('cross-button');
+        const addOffspringButton = document.getElementById('add-offspring');
+        const resetButton = document.getElementById('reset-button');
+        const messageElement = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const discoveredList = document.getElementById('discovered-list');
+        const congratsModal = document.getElementById('congratsModal');
+        const closeModalButton = document.getElementById('closeModal');
+        
+        // Elementos para navegação entre páginas
+        const gameContainer = document.getElementById('game-container');
+        const creditsContainer = document.getElementById('credits-container');
+        const showCreditsButton = document.getElementById('show-credits-button');
+        const backButton = document.getElementById('back-button');
+        
+        // Inicializar o jogo
+        function initGame() {
+            // Limpar estado
+            gameState.parents = [];
+            gameState.offspring = [];
+            gameState.selectedPlants = [];
+            gameState.tempOffspring = null;
+            gameState.score = 0;
+            gameState.discoveredGenotypes = new Set();
+            gameState.congratsShown = false;  // Resetar o estado da mensagem
+            
+            // Criar plantas iniciais
+            gameState.parents = [
+                createPlant('RR', 'BB'),
+                createPlant('RR', 'bb'),
+                createPlant('rr', 'BB'),
+                createPlant('rr', 'bb'),
+                createPlant('Rr', 'Bb')
+            ];
+            
+            // Renderizar plantas e UI
+            renderParents();
+            renderOffspring();
+            updateDiscoveredList();
+            updateMessage('Selecione duas plantas para cruzar');
+            updateScore();
+            updateButtons();
+        }
+        
+        // Criar uma planta
+        function createPlant(colorGenotype, shapeGenotype) {
+            return {
+                id: Math.random().toString(36).substring(2, 11),
+                colorGenotype,
+                shapeGenotype
+            };
+        }
+        
+        // Renderizar plantas parentais
+        function renderParents() {
+            parentContainer.innerHTML = '';
+            
+            gameState.parents.forEach(plant => {
+                const plantEl = createPlantElement(plant);
+                parentContainer.appendChild(plantEl);
+            });
+        }
+        
+        // Renderizar plantas descendentes
+        function renderOffspring() {
+            offspringContainer.innerHTML = '';
+            
+            // Renderizar descendente temporário se existir
+            if (gameState.tempOffspring) {
+                const plantEl = createPlantElement(gameState.tempOffspring, true);
+                offspringContainer.appendChild(plantEl);
+            }
+            
+            // Renderizar todos os descendentes
+            gameState.offspring.forEach(plant => {
+                const plantEl = createPlantElement(plant);
+                offspringContainer.appendChild(plantEl);
+            });
+        }
+        
+        // Criar elemento visual de planta
+        function createPlantElement(plant, isTemp = false) {
+            const plantEl = document.createElement('div');
+            plantEl.className = 'plant';
+            plantEl.dataset.id = plant.id;
+            
+            if (gameState.selectedPlants.includes(plant)) {
+                plantEl.classList.add('selected');
+            }
+            
+            // Determinar a cor da flor baseada no genótipo
+            const hasRedGene = plant.colorGenotype.includes('R');
+            const isRound = plant.shapeGenotype.includes('B');
+            
+            let flowerColor, flowerStyle = '';
+            
+            if (hasRedGene) {
+                flowerColor = '#e53935'; // vermelho
+            } else {
+                flowerColor = '#f5f5f5'; // branco
+            }
+            
+            // Ajustar forma da flor
+            if (isRound) {
+                flowerStyle = 'border-radius: 50%;';
+            } else {
+                flowerStyle = 'border-radius: 35% 35% 50% 50%;';
+            }
+            
+            // Construir HTML da planta
+            plantEl.innerHTML = `
+                <div class="pot"></div>
+                <div class="stem"></div>
+                <div class="flower" style="background-color: ${flowerColor}; ${flowerStyle}"></div>
+                <div class="genotype">${plant.colorGenotype}, ${plant.shapeGenotype}</div>
+            `;
+            
+            // Adicionar evento de clique (exceto para descendentes temporários)
+            if (!isTemp) {
+                plantEl.addEventListener('click', () => selectPlant(plant));
+            }
+            
+            return plantEl;
+        }
+        
+        // Selecionar uma planta
+        function selectPlant(plant) {
+            const isAlreadySelected = gameState.selectedPlants.includes(plant);
+            
+            if (isAlreadySelected) {
+                // Remover da seleção
+                gameState.selectedPlants = gameState.selectedPlants.filter(p => p !== plant);
+                updateMessage('Planta deselecionada');
+            } else {
+                // Adicionar à seleção (máximo 2)
+                if (gameState.selectedPlants.length < 2) {
+                    gameState.selectedPlants.push(plant);
+                    
+                    if (gameState.selectedPlants.length === 1) {
+                        updateMessage('Selecione a segunda planta para cruzar');
+                    } else {
+                        updateMessage('Plantas selecionadas! Clique em "Cruzar Plantas"');
+                    }
+                } else {
+                    // Substituir a primeira planta
+                    gameState.selectedPlants.shift();
+                    gameState.selectedPlants.push(plant);
+                    updateMessage('Novas plantas selecionadas! Clique em "Cruzar Plantas"');
+                }
+            }
+            
+            // Limpar qualquer descendente temporário
+            gameState.tempOffspring = null;
+            
+            // Atualizar a interface
+            renderParents();
+            renderOffspring();
+            updateButtons();
+        }
+        
+        // Cruzar plantas selecionadas
+        function crossPlants() {
+            if (gameState.selectedPlants.length !== 2) return;
+            
+            const parent1 = gameState.selectedPlants[0];
+            const parent2 = gameState.selectedPlants[1];
+            
+            // Realizar o cruzamento genético
+            const colorAllele1 = getRandomAllele(parent1.colorGenotype);
+            const colorAllele2 = getRandomAllele(parent2.colorGenotype);
+            
+            const shapeAllele1 = getRandomAllele(parent1.shapeGenotype);
+            const shapeAllele2 = getRandomAllele(parent2.shapeGenotype);
+            
+            // Ordenar alelos (convenção: dominante primeiro)
+            const colorGenotype = orderAlleles(colorAllele1, colorAllele2);
+            const shapeGenotype = orderAlleles(shapeAllele1, shapeAllele2);
+            
+            // Criar descendente temporário
+            gameState.tempOffspring = createPlant(colorGenotype, shapeGenotype);
+            
+            // Verificar se é um novo genótipo
+            const genotypeKey = `${colorGenotype}-${shapeGenotype}`;
+            const isNewGenotype = !gameState.discoveredGenotypes.has(genotypeKey);
+            
+            // Habilitar botão para adicionar à coleção
+            updateMessage(`Resultado do cruzamento: ${colorGenotype}, ${shapeGenotype}`);
+            
+            // Atualizar interface
+            renderOffspring();
+            updateButtons();
+        }
+        
+        // Adicionar descendente à coleção
+        function addOffspringToCollection() {
+            if (!gameState.tempOffspring) return;
+            
+            // Adicionar à coleção
+            gameState.offspring.push(gameState.tempOffspring);
+            
+            // Adicionar aos pais para permitir cruzamentos futuros
+            gameState.parents.push(gameState.tempOffspring);
+            
+            // Verificar se é um novo genótipo descoberto
+            const genotypeKey = `${gameState.tempOffspring.colorGenotype}-${gameState.tempOffspring.shapeGenotype}`;
+            const isNewGenotype = !gameState.discoveredGenotypes.has(genotypeKey);
+            
+            if (isNewGenotype) {
+                gameState.discoveredGenotypes.add(genotypeKey);
+                gameState.score += 10;
+                updateMessage('Novo genótipo descoberto! +10 pontos');
+                
+                // Verificar se o jogador descobriu pelo menos dois genótipos diferentes
+                if (gameState.discoveredGenotypes.size >= 2 && !gameState.congratsShown) {
+                    showCongratsModal();
+                    gameState.congratsShown = true;
+                }
+            } else {
+                gameState.score += 2;
+                updateMessage('Planta adicionada à coleção! +2 pontos');
+            }
+            
+            // Limpar descendente temporário e seleção
+            gameState.tempOffspring = null;
+            gameState.selectedPlants = [];
+            
+            // Atualizar interface
+            updateScore();
+            updateDiscoveredList();
+            renderParents();
+            renderOffspring();
+            updateButtons();
+        }
+        
+        // Mostrar modal de congratulação
+        function showCongratsModal() {
+            congratsModal.style.display = 'flex';
+        }
+        
+        // Fechar modal de congratulação
+        function closeCongratsModal() {
+            congratsModal.style.display = 'none';
+        }
+        
+        // Mostrar página de créditos
+        function showCredits() {
+            gameContainer.style.display = 'none';
+            creditsContainer.style.display = 'block';
+        }
+        
+        // Voltar ao menu principal (jogo)
+        function backToMenu() {
+            creditsContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+        }
+        
+        // Obter um alelo aleatório de um genótipo
+        function getRandomAllele(genotype) {
+            const allele1 = genotype.charAt(0);
+            const allele2 = genotype.charAt(1);
+            return Math.random() < 0.5 ? allele1 : allele2;
+        }
+        
+        // Ordenar alelos (dominante primeiro)
+        function orderAlleles(allele1, allele2) {
+            // Verificar se um dos alelos é dominante
+            if (allele1 === allele1.toUpperCase() && allele2 === allele2.toLowerCase()) {
+                return allele1 + allele2;
+            } else if (allele2 === allele2.toUpperCase() && allele1 === allele1.toLowerCase()) {
+                return allele2 + allele1;
+            } else {
+                // Ambos dominantes ou ambos recessivos, ordem não importa muito
+                return allele1 + allele2;
+            }
+        }
+        
+        // Atualizar mensagem
+        function updateMessage(text) {
+            messageElement.textContent = text;
+        }
+        
+        // Atualizar pontuação
+        function updateScore() {
+            scoreElement.textContent = `Pontuação: ${gameState.score}`;
+        }
+        
+        // Atualizar botões
+        function updateButtons() {
+            crossButton.disabled = gameState.selectedPlants.length !== 2;
+            addOffspringButton.disabled = !gameState.tempOffspring;
+        }
+        
+        // Atualizar lista de genótipos descobertos
+        function updateDiscoveredList() {
+            discoveredList.innerHTML = '';
+            
+            if (gameState.discoveredGenotypes.size === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = 'Nenhum genótipo descoberto ainda.';
+                discoveredList.appendChild(emptyMsg);
+                return;
+            }
+            
+            gameState.discoveredGenotypes.forEach(genotype => {
+                const [color, shape] = genotype.split('-');
+                
+                const badge = document.createElement('div');
+                badge.className = 'gene-badge';
+                badge.textContent = `${color}, ${shape}`;
+                
+                discoveredList.appendChild(badge);
+            });
+        }
+        
+        // Adicionar eventos aos botões
+        crossButton.addEventListener('click', crossPlants);
+        addOffspringButton.addEventListener('click', addOffspringToCollection);
+        resetButton.addEventListener('click', initGame);
+        closeModalButton.addEventListener('click', closeCongratsModal);
+        
+        // Adicionar eventos aos botões de navegação
+        showCreditsButton.addEventListener('click', showCredits);
+        backButton.addEventListener('click', backToMenu);
+        
+        // Iniciar o jogo
+        initGame();
+    </script>
+</body>
+</html>
